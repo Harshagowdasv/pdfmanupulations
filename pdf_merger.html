@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Merger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4a47a3;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        .pdf-display {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            width: 45%;
+            height: 500px;
+            overflow: hidden;
+            position: relative;
+        }
+        .pdf-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .form-container {
+            width: 45%;
+        }
+        input[type="file"],
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4a47a3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #3a3a8b;
+        }
+        #downloadLink {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #downloadLink a {
+            background-color: #4a47a3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        #downloadLink a:hover {
+            background-color: #3a3a8b;
+        }
+    </style>
+</head>
+<body>
+    <h1>PDF Merger</h1>
+
+    <div class="container">
+        <!-- PDF display area -->
+        <div class="pdf-display" id="pdfDisplay">
+            <iframe id="pdfFrame" class="pdf-frame" src=""></iframe>
+        </div>
+
+        <!-- Form for uploading two PDFs -->
+        <div class="form-container">
+            <input type="file" id="pdfInput1" accept="application/pdf" />
+            <input type="file" id="pdfInput2" accept="application/pdf" />
+            <button id="mergeBtn">Merge PDFs</button>
+            <div id="downloadLink">
+                <a href="#" download="merged.pdf">Download Merged PDF</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="merge.js"></script>
+    <script>
+        const mergeBtn = document.getElementById('mergeBtn');
+        const downloadLink = document.getElementById('downloadLink');
+        const pdfInput1 = document.getElementById('pdfInput1');
+        const pdfInput2 = document.getElementById('pdfInput2');
+        const pdfFrame = document.getElementById('pdfFrame');
+
+        let mergedPdfUrl = '';
+
+        // Function to display the first uploaded PDF
+        pdfInput1.addEventListener('change', async () => {
+            const file = pdfInput1.files[0];
+            if (file) {
+                const uploadedPdfUrl = URL.createObjectURL(file);
+                pdfFrame.src = uploadedPdfUrl;
+            } else {
+                pdfFrame.src = '';
+            }
+        });
+
+        // Function to merge two PDFs
+        mergeBtn.addEventListener('click', async () => {
+            const file1 = pdfInput1.files[0];
+            const file2 = pdfInput2.files[0];
+
+            if (!file1 || !file2) {
+                alert('Please upload two PDF files.');
+                return;
+            }
+
+            const arrayBuffer1 = await file1.arrayBuffer();
+            const arrayBuffer2 = await file2.arrayBuffer();
+
+            const pdfDoc1 = await PDFLib.PDFDocument.load(arrayBuffer1);
+            const pdfDoc2 = await PDFLib.PDFDocument.load(arrayBuffer2);
+            const newPdfDoc = await PDFLib.PDFDocument.create();
+
+            // Copy all pages from the first PDF
+            const pages1 = await newPdfDoc.copyPages(pdfDoc1, pdfDoc1.getPageIndices());
+            pages1.forEach((page) => newPdfDoc.addPage(page));
+
+            // Copy all pages from the second PDF
+            const pages2 = await newPdfDoc.copyPages(pdfDoc2, pdfDoc2.getPageIndices());
+            pages2.forEach((page) => newPdfDoc.addPage(page));
+
+            const pdfBytes = await newPdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            mergedPdfUrl = URL.createObjectURL(blob);
+            downloadLink.children[0].href = mergedPdfUrl;
+            downloadLink.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

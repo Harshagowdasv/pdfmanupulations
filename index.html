@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PDF Manipulation Web Tool offers a variety of PDF operations such as merging, splitting, compressing, converting images or Word to PDF, and extracting images from PDFs. Easy and fast PDF processing online.">
+    <meta name="keywords" content="PDF manipulation, PDF merge, PDF split, PDF compress, convert to PDF, image to PDF, word to PDF, extract images from PDF, online PDF tools, PDF processing">
+    <meta name="author" content="HGAI">
+    <meta name="robots" content="index, follow">
+    <title>PDF Manipulation Web Tool - Merge, Split, Compress & Convert PDFs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: #4CAF50;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+        }
+        
+        nav {
+            margin-top: 10px;
+        }
+        
+        .menu {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .menu li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .menu li a:hover {
+            background-color: #45a049;
+        }
+        
+        .pdf-toolbar {
+            margin: 50px auto;
+            text-align: center;
+        }
+        
+        .pdf-toolbar h2 {
+            margin-bottom: 30px;
+            font-size: 2em;
+            color: #333;
+        }
+        
+        .pdf-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .pdf-buttons button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .pdf-buttons button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 300px;
+        }
+        
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PDF Manipulation Web Tool</h1>
+        <nav>
+            <ul class="menu">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Signup</a></li>
+                <li><a href="#">Login</a></li>
+                <li><a href="#pdf-toolbar">PDF Toolbar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="pdf-toolbar" class="pdf-toolbar">
+        <h2>PDF Manipulation Tools</h2>
+        <div class="pdf-buttons">
+            <button onclick="window.location.href='pdf_merger.html'">Merge PDFs</button>
+            <button onclick="window.location.href='pdf_splitter.html'">Split PDF</button>
+            <button onclick="window.location.href='compressing_pdf.html'">Compress PDF</button>
+            <button onclick="window.location.href='image_to_pdf.html'">Image To Pdf</button>
+            <button onclick="window.location.href='converting_word_to_pdf.html'">Word To Pdf</button>
+            <button onclick="window.location.href='extract_images_from_pdf.html'">Extract Image From Pdf</button>
+            <button onclick="window.location.href='chatbot2.html'">Chatbot</button> <!-- Link to the chatbot functionality -->
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; Copyrights @ PDF Manipulation Tool by HGAI</p>
+    </footer>
+</body>
+</html>

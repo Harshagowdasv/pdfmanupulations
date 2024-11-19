@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4a47a3;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        .image-display {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            width: 45%;
+            height: 500px;
+            overflow: hidden;
+            position: relative;
+        }
+        .form-container {
+            width: 45%;
+        }
+        input[type="file"],
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4a47a3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #3a3a8b;
+        }
+        #downloadLink {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #downloadLink a {
+            background-color: #4a47a3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        #downloadLink a:hover {
+            background-color: #3a3a8b;
+        }
+        #loadingMessage {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #4a47a3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image to PDF Converter</h1>
+
+    <div class="container">
+        <!-- Image display area -->
+        <div class="image-display" id="imageDisplay">
+            <img id="imagePreview" src="" alt="Image Preview" style="width: 100%; height: auto;" />
+        </div>
+
+        <!-- Form for uploading images -->
+        <div class="form-container">
+            <input type="file" id="imageInput" accept="image/*" multiple />
+            <button id="convertBtn">Convert to PDF</button>
+            <div id="loadingMessage">Processing... Please wait.</div>
+            <div id="downloadLink">
+                <a href="#" download="converted.pdf">Download PDF</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script>
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadLink = document.getElementById('downloadLink');
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const loadingMessage = document.getElementById('loadingMessage');
+
+        imageInput.addEventListener('change', () => {
+            const files = imageInput.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = '';
+            }
+        });
+
+        convertBtn.addEventListener('click', async () => {
+            const files = imageInput.files;
+
+            if (files.length === 0) {
+                alert('Please upload at least one image.');
+                return;
+            }
+
+            loadingMessage.style.display = 'block';
+            downloadLink.style.display = 'none';
+            imagePreview.style.display = 'none';
+
+            const pdfDoc = await PDFLib.PDFDocument.create();
+            for (const file of files) {
+                const imageData = await file.arrayBuffer();
+                let image;
+
+                // Try to embed the image as PNG or JPEG
+                if (file.type === 'image/png') {
+                    image = await pdfDoc.embedPng(imageData);
+                } else if (file.type === 'image/jpeg') {
+                    image = await pdfDoc.embedJpg(imageData);
+                } else {
+                    alert('Unsupported image format. Please upload PNG or JPEG images.');
+                    loadingMessage.style.display = 'none';
+                    return;
+                }
+
+                const page = pdfDoc.addPage([image.width, image.height]);
+                page.drawImage(image, {
+                    x: 0,
+                    y: 0,
+                    width: image.width,
+                    height: image.height,
+                });
+            }
+
+            const pdfBytes = await pdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            downloadLink.children[0].href = url;
+            downloadLink.style.display = 'block';
+            loadingMessage.style.display = 'none';
+            imagePreview.style.display = 'block'; // Show preview again
+        });
+    </script>
+</body>
+</html>

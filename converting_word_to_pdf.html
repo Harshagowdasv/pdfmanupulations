@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word to PDF Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4a47a3;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+        }
+        input[type="file"],
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4a47a3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #3a3a8b;
+        }
+        #downloadLink {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #downloadLink a {
+            background-color: #4a47a3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        #downloadLink a:hover {
+            background-color: #3a3a8b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Word to PDF Converter</h1>
+
+    <div class="container">
+        <div class="form-container">
+            <input type="file" id="wordInput" accept=".doc,.docx" />
+            <button id="convertBtn">Convert to PDF</button>
+            <div id="downloadLink">
+                <a href="#" download="converted.pdf">Download PDF</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mammoth.js to extract text from .docx -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <!-- PDF-lib.js to create PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <script>
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadLink = document.getElementById('downloadLink');
+        const wordInput = document.getElementById('wordInput');
+
+        convertBtn.addEventListener('click', async () => {
+            const file = wordInput.files[0];
+
+            if (!file) {
+                alert('Please upload a Word document.');
+                return;
+            }
+
+            const arrayBuffer = await file.arrayBuffer();
+
+            try {
+                // Extract text from the .docx file using Mammoth.js
+                const { value: extractedText } = await mammoth.extractRawText({ arrayBuffer });
+
+                if (!extractedText.trim()) {
+                    alert('Failed to extract content. Please use a text-based .docx file.');
+                    return;
+                }
+
+                // Use PDF-lib to create a new PDF with the extracted text
+                const pdfDoc = await PDFLib.PDFDocument.create();
+                let page = pdfDoc.addPage([600, 800]);
+                const fontSize = 12;
+                const lines = extractedText.split('\n');
+                let y = 750;
+
+                // Add each line of text to the PDF
+                lines.forEach((line) => {
+                    if (y <= 50) { // If the page is full, create a new page
+                        page = pdfDoc.addPage([600, 800]);
+                        y = 750;
+                    }
+                    page.drawText(line, { x: 50, y, size: fontSize });
+                    y -= 20;
+                });
+
+                // Save the PDF and create a downloadable link
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                downloadLink.children[0].href = url;
+                downloadLink.style.display = 'block'; // Show download link
+
+            } catch (error) {
+                alert('Error converting document: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Document Creator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4a47a3;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        .form-container {
+            width: 45%;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            resize: none;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #4a47a3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #3a3a8b;
+        }
+        #downloadLink {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #downloadLink a {
+            background-color: #4a47a3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        #downloadLink a:hover {
+            background-color: #3a3a8b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Word Document Creator</h1>
+
+    <div class="container">
+        <!-- Form for creating a Word document -->
+        <div class="form-container">
+            <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+            <button id="createBtn">Create Word Document</button>
+            <div id="downloadLink">
+                <a href="#" download="document.docx">Download Word Document</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include docx.js library -->
+    <script src="https://unpkg.com/docx@7.3.0/build/index.js"></script>
+
+    <script>
+        const createBtn = document.getElementById('createBtn');
+        const downloadLink = document.getElementById('downloadLink');
+        const textInput = document.getElementById('textInput');
+
+        createBtn.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+
+            if (!text) {
+                alert('Please enter some text to create a Word document.');
+                return;
+            }
+
+            try {
+                // Use docx.js to create the Word document
+                const { Document, Packer, Paragraph, TextRun } = window.docx;
+
+                // Create a new document
+                const doc = new Document({
+                    sections: [{
+                        children: [
+                            new Paragraph({
+                                children: [new TextRun(text)]
+                            })
+                        ]
+                    }]
+                });
+
+                // Generate the Word document as a blob
+                const blob = await Packer.toBlob(doc);
+
+                // Create a download link for the generated Word document
+                const url = URL.createObjectURL(blob);
+                const downloadAnchor = downloadLink.children[0];
+                downloadAnchor.href = url;
+                downloadAnchor.download = "document.docx";
+                downloadLink.style.display = 'block'; // Show download link
+
+            } catch (error) {
+                console.error('Error creating the Word document:', error);
+                alert('There was an error generating the Word document.');
+            }
+        });
+    </script>
+</body>
+</html>
